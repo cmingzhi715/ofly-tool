@@ -9,7 +9,7 @@ export interface ToolMeta {
 export const tools: ToolMeta[] = [
   { id: 'json-formatter', name: 'JSON 格式化', short: 'JSON', desc: '格式化 / 校验 / 压缩', path: '/tools/json-formatter' },
   { id: 'hash-generator', name: 'Hash 生成器', short: 'HASH', desc: 'MD5 / SHA1 / SHA256 / SHA512', path: '/tools/hash-generator' },
-  { id: 'base64', name: 'Base64 编解码', short: 'BASE64', desc: '文本 / 文件双向转换', path: '/tools/base64' },
+  { id: 'base64', name: 'Base64 编解码', short: 'BASE64', desc: '文本编码与解码', path: '/tools/base64' },
   { id: 'timestamp', name: '时间戳转换', short: 'TS', desc: 'Unix ↔ 日期，秒 / 毫秒', path: '/tools/timestamp' },
   { id: 'url-codec', name: 'URL 编码 / 解码', short: 'URL', desc: '百分号编码与解码', path: '/tools/url-codec' },
 ]

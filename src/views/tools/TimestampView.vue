@@ -16,12 +16,21 @@ function formatLocal(d: Date): string {
 }
 
 function tsToDate() {
-  const v = Number(tsInput.value)
+  const raw = tsInput.value.trim()
+  if (!raw) {
+    tsResult.value = ''
+    return
+  }
+  const v = Number(raw)
   if (!Number.isFinite(v)) {
     tsResult.value = '请输入有效的时间戳数字'
     return
   }
   const d = new Date(unit.value === 's' ? v * 1000 : v)
+  if (Number.isNaN(d.getTime())) {
+    tsResult.value = '超出可表示的时间范围'
+    return
+  }
   tsResult.value = `本地时间：${formatLocal(d)}\nUTC：${d.toISOString().replace('T', ' ').slice(0, 19)} UTC`
 }
 
