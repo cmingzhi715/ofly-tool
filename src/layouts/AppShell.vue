@@ -99,7 +99,7 @@ html[data-skin='neon'] .eyebrow {
   letter-spacing: 0.5em;
   color: var(--color-accent);
   text-transform: uppercase;
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 60%, transparent);
 }
 html[data-skin='neon'] h1 {
   font-size: clamp(24px, 4vw, 40px);
@@ -109,7 +109,7 @@ html[data-skin='neon'] h1 {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.35));
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent));
 }
 html[data-skin='neon'] .header-right {
   margin-left: auto;
@@ -143,12 +143,16 @@ html[data-skin='neon'] .nav-item {
 }
 html[data-skin='neon'] .nav-item:hover {
   color: var(--color-text);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-hover);
 }
 html[data-skin='neon'] .nav-item.router-link-active {
   border-color: var(--color-border);
   color: var(--color-text);
-  background: linear-gradient(90deg, rgba(0, 240, 255, 0.12), rgba(255, 0, 224, 0.05));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent) 12%, transparent),
+    color-mix(in srgb, var(--color-accent-2) 5%, transparent)
+  );
 }
 html[data-skin='neon'] .nav-item.router-link-active::before {
   content: '';
@@ -185,7 +189,7 @@ html[data-skin='neon'] .app-status {
 }
 html[data-skin='neon'] .app-status .st-on {
   color: var(--color-accent);
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 html[data-skin='neon'] .app-status .st-r {
   margin-left: auto;
@@ -194,15 +198,15 @@ html[data-skin='neon'] .app-status .st-r {
 
 /* ===== CRT ===== */
 html[data-skin='crt'] .app-shell {
-  background: radial-gradient(900px 600px at 50% -20%, #0a1a16, #05090a 70%);
+  background: var(--bg-shell);
 }
 html[data-skin='crt'] .app-inner {
   border-radius: 14px;
-  border: 1px solid #022b24;
+  border: 1px solid var(--border-strong);
   background: radial-gradient(120% 90% at 50% 0%, var(--color-bg-2), var(--color-bg));
   box-shadow:
-    inset 0 0 60px rgba(0, 0, 0, 0.85),
-    inset 0 0 8px rgba(0, 255, 159, 0.08);
+    inset 0 0 60px var(--shadow-deep),
+    inset 0 0 8px color-mix(in srgb, var(--color-accent) 8%, transparent);
   padding: 20px 24px 16px;
 }
 html[data-skin='crt'] .brand-neon {
@@ -228,7 +232,7 @@ html[data-skin='crt'] .logo {
   font-size: 30px;
   color: var(--color-accent);
   letter-spacing: 6px;
-  text-shadow: 0 0 10px rgba(0, 255, 159, 0.7);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 html[data-skin='crt'] .logo small {
   font-size: 12px;
@@ -265,14 +269,14 @@ html[data-skin='crt'] .nav-item {
   letter-spacing: 1px;
 }
 html[data-skin='crt'] .nav-item:hover {
-  color: #ffd166;
+  color: var(--color-hover);
   border-color: var(--color-accent-2);
 }
 html[data-skin='crt'] .nav-item.router-link-active {
   background: var(--color-accent-2);
   border-color: var(--color-accent-2);
-  color: #241a00;
-  box-shadow: 0 0 14px rgba(255, 176, 0, 0.5);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--color-accent-2) 50%, transparent);
 }
 html[data-skin='crt'] .nav-num,
 html[data-skin='crt'] .nav-name {

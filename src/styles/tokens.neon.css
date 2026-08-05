@@ -9,10 +9,17 @@
   --color-accent: #00f0ff;
   --color-accent-2: #ff00e0;
   --color-accent-3: #7b5cff;
+  --color-hover: #b9c4e8;
+  --color-on-accent: #060a16;
   --font-ui: "Rajdhani", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
   --radius: 10px;
   --glow-accent: rgba(0, 240, 255, 0.4);
+  --overlay-ink: rgba(0, 0, 0, 0.6);
+  --shadow-deep: rgba(0, 0, 0, 0.85);
+  --border-strong: rgba(0, 240, 255, 0.35);
+  --bg-hover: rgba(255, 255, 255, 0.03);
+  --bg-shell: none;
   --texture-bg: linear-gradient(rgba(0, 240, 255, 0.14) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 240, 255, 0.14) 1px, transparent 1px);
   --texture-size: 42px 42px;

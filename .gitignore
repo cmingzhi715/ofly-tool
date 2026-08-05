@@ -40,6 +40,9 @@ coverage/
 test-results/
 playwright-report/
 
+# 验证截图（可随时运行生成）
+shot-*.png
+
 # 类型/缓存
 *.tsbuildinfo
 .eslintcache

@@ -9,10 +9,17 @@
   --color-accent: #00ff9f;
   --color-accent-2: #ffb000;
   --color-accent-3: #7b5cff;
+  --color-hover: #ffd166;
+  --color-on-accent: #241a00;
   --font-ui: "VT323", "Courier New", "IBM Plex Mono", ui-monospace, monospace;
   --font-mono: "VT323", "Courier New", monospace;
   --radius: 0px;
   --glow-accent: rgba(0, 255, 159, 0.4);
+  --overlay-ink: rgba(0, 0, 0, 0.6);
+  --shadow-deep: rgba(0, 0, 0, 0.85);
+  --border-strong: #022b24;
+  --bg-hover: transparent;
+  --bg-shell: radial-gradient(900px 600px at 50% -20%, #0a1a16, #05090a 70%);
   --texture-bg: none;
   --texture-size: auto;
   --scanline: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);

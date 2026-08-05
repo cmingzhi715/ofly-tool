@@ -72,19 +72,28 @@ ofly-tool/
 [data-skin] {
   /* 色彩 */
   --color-bg:            /* 页面底色 */
+  --color-bg-2:          /* 底色渐变终点 */
   --color-surface:       /* 卡片/面板底色 */
   --color-surface-2:     /* 嵌套/悬浮底色 */
   --color-border:        /* 边框（非发光） */
+  --border-strong:       /* 强边框 / 屏幕边框 */
   --color-text:          /* 正文 */
   --color-text-muted:    /* 次级文字 */
   --color-accent:        /* 主强调色 */
   --color-accent-2:      /* 副强调色 */
+  --color-accent-3:      /* 第三强调色（如霓虹辅助紫） */
+  --color-hover:         /* 悬停文本色 */
+  --color-on-accent:     /* 强调底上的文本色 */
   /* 字体 */
   --font-ui:             /* 界面字体 */
   --font-mono:           /* 代码/数据字体 */
   /* 效果 */
   --radius:              /* 统一圆角 */
   --glow-accent:         /* 强调发光色值（用于 box-shadow/text-shadow） */
+  --overlay-ink:         /* 暗色叠加（暗角 / 遮罩） */
+  --shadow-deep:         /* 深阴影 */
+  --bg-hover:            /* 悬停底色 */
+  --bg-shell:            /* 外壳背景（none 或渐变） */
   /* 纹理装饰（背景类） */
   --texture-bg:          /* 背景纹理（网格线/扫描线等），可为 none */
   --scanline:            /* 扫描线开关：none / 叠加样式 */
@@ -97,10 +106,17 @@ ofly-tool/
 
 | 令牌 | 值 |
 |------|----|
-| `--color-bg` | `#0b0e1a`（渐变至 `#0f1322`） |
+| `--color-bg` | `#0b0e1a` |
+| `--color-bg-2` | `#0f1322`（渐变终点） |
 | `--color-accent` | `#00f0ff`（霓虹青） |
 | `--color-accent-2` | `#ff00e0`（品红） |
-| 辅助紫 | `#7b5cff` |
+| `--color-accent-3` | `#7b5cff`（辅助紫） |
+| `--color-hover` | `#b9c4e8` |
+| `--color-on-accent` | `#060a16` |
+| `--border-strong` | `rgba(0, 240, 255, 0.35)` |
+| `--overlay-ink` / `--shadow-deep` | `rgba(0,0,0,0.6)` / `rgba(0,0,0,0.85)` |
+| `--bg-hover` | `rgba(255,255,255,0.03)` |
+| `--bg-shell` | `none` |
 | `--color-text` | `#dfe6ff` |
 | `--color-text-muted` | `#6b74a6` |
 | `--font-ui` | 无衬线栈，标题大写 + `letter-spacing` 拉宽 |
@@ -111,9 +127,17 @@ ofly-tool/
 | 令牌 | 值 |
 |------|----|
 | `--color-bg` | `#001b18`（CRT 屏幕底） |
+| `--color-bg-2` | `#00261f`（渐变终点） |
 | 外壳 | `#131a19`（显示器边框 / bezel） |
 | `--color-accent` | `#00ff9f`（薄荷） |
 | `--color-accent-2` | `#ffb000`（琥珀） |
+| `--color-accent-3` | `#7b5cff` |
+| `--color-hover` | `#ffd166` |
+| `--color-on-accent` | `#241a00` |
+| `--border-strong` | `#022b24`（屏幕边框） |
+| `--overlay-ink` / `--shadow-deep` | `rgba(0,0,0,0.6)` / `rgba(0,0,0,0.85)` |
+| `--bg-hover` | `transparent` |
+| `--bg-shell` | `radial-gradient(900px 600px at 50% -20%, #0a1a16, #05090a 70%)` |
 | `--color-text` | `#b7ffe9` |
 | `--color-text-muted` | `#2aa88a` |
 | `--color-border` | `#0d5c4c` |

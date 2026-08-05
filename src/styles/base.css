@@ -42,7 +42,7 @@ button {
 [data-skin="neon"] body {
   background:
     radial-gradient(900px 500px at 15% -10%, color-mix(in srgb, var(--color-accent-3) 25%, transparent), transparent 60%),
-    radial-gradient(900px 500px at 85% -10%, rgba(0, 240, 255, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 85% -10%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 60%),
     linear-gradient(var(--color-bg), var(--color-bg-2));
 }
 [data-skin="neon"] .fx-grid {
@@ -64,7 +64,7 @@ button {
   height: 160px;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(0, 240, 255, 0.06), transparent);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-accent) 6%, transparent), transparent);
   animation: fx-sweep 7s linear infinite;
 }
 @keyframes fx-sweep {
@@ -91,7 +91,7 @@ button {
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 90px var(--overlay-ink);
 }
 
 /* 通用组件类（令牌驱动，两皮肤共用） */
@@ -112,10 +112,10 @@ button {
   border-radius: var(--radius);
   background: linear-gradient(
     120deg,
-    rgba(0, 240, 255, 0.5),
+    color-mix(in srgb, var(--color-accent) 50%, transparent),
     transparent 30%,
     transparent 70%,
-    rgba(255, 0, 224, 0.4)
+    color-mix(in srgb, var(--color-accent-2) 40%, transparent)
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -152,7 +152,7 @@ button {
 [data-skin="neon"] .btn-ghost:hover {
   color: var(--color-accent-2);
   border-color: var(--color-accent-2);
-  box-shadow: 0 0 18px rgba(255, 0, 224, 0.25);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-accent-2) 25%, transparent);
 }
 [data-skin="crt"] .btn {
   font-family: var(--font-mono);
@@ -201,4 +201,11 @@ button {
   border-radius: 50%;
   background: var(--color-accent);
   box-shadow: 0 0 8px var(--glow-accent);
+}
+
+/* 尊重系统减弱动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  [data-skin="neon"] .fx-scan {
+    animation: none;
+  }
 }
