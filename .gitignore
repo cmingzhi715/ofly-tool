@@ -36,6 +36,8 @@ lerna-debug.log*
 # 测试/工具产物
 coverage/
 .playwright-mcp/
+test-results/
+playwright-report/
 
 # 类型/缓存
 *.tsbuildinfo
