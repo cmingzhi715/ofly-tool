@@ -17,3 +17,13 @@ test('二维码：输入文本生成二维码', async ({ page }) => {
   const src = await page.locator('.qr-img').getAttribute('src')
   expect(src).toMatch(/^data:image\/png/)
 })
+
+test('文本小工具：去重与排序行', async ({ page }) => {
+  await page.goto('/tools/text')
+  await page.locator('.tx-in').fill('b\na\nb\nc')
+  await page.getByRole('button', { name: '去重行' }).click()
+  await expect(page.locator('.tx-out')).toHaveText('b\na\nc')
+  await page.locator('.tx-in').fill('c\na\nb')
+  await page.getByRole('button', { name: '排序行' }).click()
+  await expect(page.locator('.tx-out')).toHaveText('a\nb\nc')
+})

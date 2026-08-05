@@ -14,4 +14,5 @@ export const tools: ToolMeta[] = [
   { id: 'url-codec', name: 'URL 编码 / 解码', short: 'URL', desc: '百分号编码与解码', path: '/tools/url-codec' },
   { id: 'text-diff', name: '文本 Diff 对比', short: 'DIFF', desc: '两段文本差异高亮', path: '/tools/text-diff' },
   { id: 'qrcode', name: '二维码生成', short: 'QR', desc: '文本 / URL → 二维码', path: '/tools/qrcode' },
+  { id: 'text', name: '文本小工具', short: 'TXT', desc: '大小写 / 行号 / 去重 / 排序', path: '/tools/text' },
 ]
