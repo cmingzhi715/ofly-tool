@@ -50,3 +50,14 @@ test('时间戳转换：Unix 秒 → UTC 时间', async ({ page }) => {
   await expect(page.locator('.ts-result').first()).toContainText('2023-11-14')
   await expect(page.locator('.ts-result').first()).toContainText('22:13:20 UTC')
 })
+
+test('URL：编码与解码往返', async ({ page }) => {
+  await page.goto('/tools/url-codec')
+  await page.locator('.url-in').fill('a b&中')
+  await page.getByRole('button', { name: '编码' }).click()
+  const out = page.locator('.url-out')
+  await expect(out).toHaveText('a%20b%26%E4%B8%AD')
+  await page.locator('.url-in').fill('a%20b%26%E4%B8%AD')
+  await page.getByRole('button', { name: '解码' }).click()
+  await expect(page.locator('.url-out')).toHaveText('a b&中')
+})
