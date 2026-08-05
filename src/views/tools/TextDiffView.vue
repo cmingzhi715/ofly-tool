@@ -19,8 +19,7 @@ const lines = computed<DiffLine[]>(() => {
   for (const p of parts.value) {
     const cls = p.added ? 'diff-add' : p.removed ? 'diff-rem' : 'diff-ctx'
     const mark = p.added ? '+' : p.removed ? '-' : ' '
-    for (const l of p.value.split('\n')) {
-      if (!l.length) continue
+    for (const l of p.value.replace(/\n$/, '').split('\n')) {
       out.push({ mark, text: l, cls })
     }
   }

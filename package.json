@@ -26,7 +26,6 @@
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@tsconfig/node24": "^24.0.4",
-    "@types/diff": "^7.0.2",
     "@types/node": "^24.13.3",
     "@types/prismjs": "^1.26.6",
     "@types/qrcode": "^1.5.6",
