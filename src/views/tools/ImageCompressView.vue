@@ -22,8 +22,8 @@ const singleOutUrl = ref('')
 const singleInfo = ref('')
 const error = ref('')
 
-// 文件夹批量状态
-const fsSupported = typeof window !== 'undefined' && 'showDirectoryPicker' in window
+// 文件夹批量状态（showDirectoryPicker 为全局函数声明，非 Window 方法）
+const fsSupported = typeof showDirectoryPicker === 'function'
 const dirHandle = ref<FileSystemDirectoryHandle | null>(null)
 const folderName = ref('')
 const items = ref<{ name: string; file: File }[]>([])
@@ -133,7 +133,7 @@ async function pickFolder() {
     return
   }
   try {
-    const dir = await window.showDirectoryPicker()
+    const dir = await showDirectoryPicker()
     dirHandle.value = dir
     folderName.value = dir.name
     await loadFromDir(dir)
