@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OFLY TOOL · 风格 Demo</title>
+<style>
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#070b11;color:#e6edf3;padding:40px 24px}
+  h1{font-size:22px;margin:0 0 6px}
+  p{color:#8b949e;margin:0 0 28px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:1200px}
+  .card{background:#161b22;border:1px solid #21262d;border-radius:10px;overflow:hidden;display:block;text-decoration:none;color:inherit;transition:.15s}
+  .card:hover{border-color:#30363d;transform:translateY(-2px)}
+  .swatch{height:120px;display:grid;place-items:center;font-family:monospace;font-size:12px;letter-spacing:1px}
+  .card .info{padding:14px 16px}
+  .card .t{font-weight:600;font-size:15px}
+  .card .d{color:#8b949e;font-size:13px;margin-top:4px}
+  .card .tag{font-size:11px;color:#58a6ff;margin-top:8px;display:inline-block;border:1px solid #21262d;padding:2px 8px;border-radius:999px}
+  .s1{background:linear-gradient(135deg,#0a0e14,#0f141b);color:#00ff9f}
+  .s2{background:linear-gradient(135deg,#0d1117,#161b22);color:#58a6ff}
+  .s3{background:linear-gradient(135deg,#0b0e1a,#0f1322);color:#00f0ff}
+  .s4{background:linear-gradient(135deg,#02110f,#001b18);color:#ffb000}
+</style>
+</head>
+<body>
+<h1>OFLY TOOL · 技术风格 Demo 对比</h1>
+<p>四种风格方向，点击查看静态 HTML 效果。选定后固化为 CLAUDE.md 风格规范。</p>
+<div class="cards">
+  <a class="card" href="01-terminal-hacker.html">
+    <div class="swatch s1">01 · TERMINAL</div>
+    <div class="info">
+      <div class="t">暗色终端黑客风</div>
+      <div class="d">黑底荧光绿/青 · 等宽字体 · 命令行提示符 · 终端窗口框</div>
+      <span class="tag">#00ff9f / #0a0e14</span>
+    </div>
+  </a>
+  <a class="card" href="02-minimal-dashboard.html">
+    <div class="swatch s2">02 · DASHBOARD</div>
+    <div class="info">
+      <div class="t">极简暗色仪表盘</div>
+      <div class="d">深灰底 · 高亮蓝 · 圆角卡片 · 克制现代（Vercel 风）</div>
+      <span class="tag">#58a6ff / #0d1117</span>
+    </div>
+  </a>
+  <a class="card" href="03-cyber-neon.html">
+    <div class="swatch s3">03 · NEON</div>
+    <div class="info">
+      <div class="t">赛博霓虹风</div>
+      <div class="d">深蓝黑底 · 霓虹青/品红渐变发光 · 毛玻璃 · 网格线</div>
+      <span class="tag">#00f0ff / #ff00e0</span>
+    </div>
+  </a>
+  <a class="card" href="04-retro-crt.html">
+    <div class="swatch s4">04 · CRT</div>
+    <div class="info">
+      <div class="t">复古 CRT 终端</div>
+      <div class="d">墨绿底 · 薄荷/琥珀 · 扫描线 · 字符画边框 · 显示器外壳</div>
+      <span class="tag">#00ff9f / #ffb000</span>
+    </div>
+  </a>
+</div>
+</body>
+</html>
