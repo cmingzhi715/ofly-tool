@@ -31,3 +31,14 @@ test('Hash 生成器：SHA-256 与 MD5', async ({ page }) => {
     '900150983cd24fb0d6963f7d28e17f72',
   )
 })
+
+test('Base64：中文编码与解码往返', async ({ page }) => {
+  await page.goto('/tools/base64')
+  await page.locator('.b64-in').fill('你好')
+  await page.getByRole('button', { name: '编码为 Base64' }).click()
+  const out = page.locator('.b64-out')
+  await expect(out).toHaveText('5L2g5aW9')
+  await page.locator('.b64-in').fill('5L2g5aW9')
+  await page.getByRole('button', { name: '从 Base64 解码' }).click()
+  await expect(page.locator('.b64-out')).toHaveText('你好')
+})
