@@ -30,6 +30,11 @@ const router = createRouter({
       name: 'url-codec',
       component: () => import('@/views/tools/UrlCodecView.vue'),
     },
+    {
+      path: '/tools/text-diff',
+      name: 'text-diff',
+      component: () => import('@/views/tools/TextDiffView.vue'),
+    },
   ],
 })
 
