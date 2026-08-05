@@ -115,7 +115,8 @@ ofly-tool/
 | `--color-accent` | `#00ff9f`（薄荷） |
 | `--color-accent-2` | `#ffb000`（琥珀） |
 | `--color-text` | `#b7ffe9` |
-| `--color-text-muted` | `#0d5c4c` |
+| `--color-text-muted` | `#2aa88a` |
+| `--color-border` | `#0d5c4c` |
 | `--font-ui` | 等宽字体栈（VT323 / Courier New） |
 | 特征 | 扫描线叠加层、屏幕暗角（vignette）、闪烁动画、字符画边框、盒状 `[ 工具 ]` 菜单、块状光标 |
 

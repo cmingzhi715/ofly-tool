@@ -41,7 +41,7 @@ button {
 }
 [data-skin="neon"] body {
   background:
-    radial-gradient(900px 500px at 15% -10%, rgba(123, 92, 255, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 15% -10%, color-mix(in srgb, var(--color-accent-3) 25%, transparent), transparent 60%),
     radial-gradient(900px 500px at 85% -10%, rgba(0, 240, 255, 0.18), transparent 60%),
     linear-gradient(var(--color-bg), var(--color-bg-2));
 }
@@ -119,6 +119,7 @@ button {
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
   pointer-events: none;
 }
@@ -154,7 +155,6 @@ button {
   box-shadow: 0 0 18px rgba(255, 0, 224, 0.25);
 }
 [data-skin="crt"] .btn {
-  border-radius: 0;
   font-family: var(--font-mono);
 }
 [data-skin="crt"] .btn-ghost {
