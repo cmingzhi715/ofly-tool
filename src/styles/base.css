@@ -209,3 +209,33 @@ button {
     animation: none;
   }
 }
+
+/* JSON 语法高亮主题（Prism token 类 → 皮肤令牌，按 data-skin 切换） */
+[data-skin="neon"] .token.property {
+  color: var(--color-accent-3);
+}
+[data-skin="neon"] .token.string {
+  color: var(--color-accent);
+}
+[data-skin="neon"] .token.number,
+[data-skin="neon"] .token.boolean,
+[data-skin="neon"] .token.null {
+  color: var(--color-accent-2);
+}
+[data-skin="neon"] .token.punctuation {
+  color: var(--color-text-muted);
+}
+[data-skin="crt"] .token.property {
+  color: var(--color-accent-2);
+}
+[data-skin="crt"] .token.string {
+  color: var(--color-accent);
+}
+[data-skin="crt"] .token.number,
+[data-skin="crt"] .token.boolean,
+[data-skin="crt"] .token.null {
+  color: var(--color-hover);
+}
+[data-skin="crt"] .token.punctuation {
+  color: var(--color-text-muted);
+}
