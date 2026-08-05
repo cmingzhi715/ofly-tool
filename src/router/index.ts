@@ -1,21 +1,34 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    { path: '/', name: 'home', component: HomeView },
     {
-      path: '/',
-      name: 'home',
-      component: HomeView,
+      path: '/tools/json-formatter',
+      name: 'json-formatter',
+      component: () => import('@/views/tools/JsonFormatterView.vue'),
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/tools/hash-generator',
+      name: 'hash-generator',
+      component: () => import('@/views/tools/HashGeneratorView.vue'),
+    },
+    {
+      path: '/tools/base64',
+      name: 'base64',
+      component: () => import('@/views/tools/Base64View.vue'),
+    },
+    {
+      path: '/tools/timestamp',
+      name: 'timestamp',
+      component: () => import('@/views/tools/TimestampView.vue'),
+    },
+    {
+      path: '/tools/url-codec',
+      name: 'url-codec',
+      component: () => import('@/views/tools/UrlCodecView.vue'),
     },
   ],
 })
