@@ -13,4 +13,5 @@ export const tools: ToolMeta[] = [
   { id: 'timestamp', name: '时间戳转换', short: 'TS', desc: 'Unix ↔ 日期，秒 / 毫秒', path: '/tools/timestamp' },
   { id: 'url-codec', name: 'URL 编码 / 解码', short: 'URL', desc: '百分号编码与解码', path: '/tools/url-codec' },
   { id: 'text-diff', name: '文本 Diff 对比', short: 'DIFF', desc: '两段文本差异高亮', path: '/tools/text-diff' },
+  { id: 'qrcode', name: '二维码生成', short: 'QR', desc: '文本 / URL → 二维码', path: '/tools/qrcode' },
 ]

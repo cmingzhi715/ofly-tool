@@ -35,6 +35,11 @@ const router = createRouter({
       name: 'text-diff',
       component: () => import('@/views/tools/TextDiffView.vue'),
     },
+    {
+      path: '/tools/qrcode',
+      name: 'qrcode',
+      component: () => import('@/views/tools/QrCodeView.vue'),
+    },
   ],
 })
 
