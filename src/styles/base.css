@@ -1,0 +1,204 @@
+/* Reset 与基础 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  font-family: var(--font-ui);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 5px;
+}
+
+/* 皮肤环境层（覆盖层默认隐藏，按皮肤显示，避免空 div 影响布局） */
+.fx-grid,
+.fx-scan,
+.fx-scanlines,
+.fx-vignette {
+  display: none;
+}
+[data-skin="neon"] body {
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(123, 92, 255, 0.25), transparent 60%),
+    radial-gradient(900px 500px at 85% -10%, rgba(0, 240, 255, 0.18), transparent 60%),
+    linear-gradient(var(--color-bg), var(--color-bg-2));
+}
+[data-skin="neon"] .fx-grid {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--texture-bg);
+  background-size: var(--texture-size);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.25) 70%, transparent);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.25) 70%, transparent);
+}
+[data-skin="neon"] .fx-scan {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 160px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(0, 240, 255, 0.06), transparent);
+  animation: fx-sweep 7s linear infinite;
+}
+@keyframes fx-sweep {
+  0% {
+    top: -160px;
+  }
+  100% {
+    top: 110%;
+  }
+}
+
+[data-skin="crt"] .fx-scanlines {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: var(--scanline);
+  mix-blend-mode: multiply;
+}
+[data-skin="crt"] .fx-vignette {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.6);
+}
+
+/* 通用组件类（令牌驱动，两皮肤共用） */
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+[data-skin="neon"] .panel {
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+[data-skin="neon"] .panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: var(--radius);
+  background: linear-gradient(
+    120deg,
+    rgba(0, 240, 255, 0.5),
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 0, 224, 0.4)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover {
+  filter: brightness(1.1);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+[data-skin="neon"] .btn {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+[data-skin="neon"] .btn-ghost:hover {
+  color: var(--color-accent-2);
+  border-color: var(--color-accent-2);
+  box-shadow: 0 0 18px rgba(255, 0, 224, 0.25);
+}
+[data-skin="crt"] .btn {
+  border-radius: 0;
+  font-family: var(--font-mono);
+}
+[data-skin="crt"] .btn-ghost {
+  color: var(--color-accent);
+}
+
+.input {
+  width: 100%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 12px 14px;
+  resize: vertical;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  text-transform: uppercase;
+}
+.chip i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--glow-accent);
+}

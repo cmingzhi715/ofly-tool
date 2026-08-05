@@ -1,0 +1,19 @@
+[data-skin="neon"] {
+  --color-bg: #0b0e1a;
+  --color-bg-2: #0f1322;
+  --color-surface: rgba(19, 24, 48, 0.55);
+  --color-surface-2: rgba(0, 0, 0, 0.28);
+  --color-border: rgba(0, 240, 255, 0.18);
+  --color-text: #dfe6ff;
+  --color-text-muted: #6b74a6;
+  --color-accent: #00f0ff;
+  --color-accent-2: #ff00e0;
+  --font-ui: "Rajdhani", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --radius: 10px;
+  --glow-accent: rgba(0, 240, 255, 0.4);
+  --texture-bg: linear-gradient(rgba(0, 240, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.14) 1px, transparent 1px);
+  --texture-size: 42px 42px;
+  --scanline: none;
+}

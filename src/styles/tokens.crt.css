@@ -1,0 +1,18 @@
+[data-skin="crt"] {
+  --color-bg: #001b18;
+  --color-bg-2: #00261f;
+  --color-surface: rgba(0, 0, 0, 0.25);
+  --color-surface-2: rgba(0, 0, 0, 0.45);
+  --color-border: #0d5c4c;
+  --color-text: #b7ffe9;
+  --color-text-muted: #2aa88a;
+  --color-accent: #00ff9f;
+  --color-accent-2: #ffb000;
+  --font-ui: "VT323", "Courier New", "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono: "VT323", "Courier New", monospace;
+  --radius: 0px;
+  --glow-accent: rgba(0, 255, 159, 0.4);
+  --texture-bg: none;
+  --texture-size: auto;
+  --scanline: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+}
