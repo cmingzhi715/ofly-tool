@@ -42,3 +42,11 @@ test('Base64：中文编码与解码往返', async ({ page }) => {
   await page.getByRole('button', { name: '从 Base64 解码' }).click()
   await expect(page.locator('.b64-out')).toHaveText('你好')
 })
+
+test('时间戳转换：Unix 秒 → UTC 时间', async ({ page }) => {
+  await page.goto('/tools/timestamp')
+  await page.locator('.ts-in').fill('1700000000')
+  await page.getByRole('button', { name: '转换' }).first().click()
+  await expect(page.locator('.ts-result').first()).toContainText('2023-11-14')
+  await expect(page.locator('.ts-result').first()).toContainText('22:13:20 UTC')
+})
