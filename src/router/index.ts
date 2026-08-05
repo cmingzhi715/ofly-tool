@@ -45,6 +45,11 @@ const router = createRouter({
       name: 'text',
       component: () => import('@/views/tools/TextView.vue'),
     },
+    {
+      path: '/tools/image-compress',
+      name: 'image-compress',
+      component: () => import('@/views/tools/ImageCompressView.vue'),
+    },
   ],
 })
 

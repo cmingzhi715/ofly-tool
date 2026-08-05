@@ -15,4 +15,5 @@ export const tools: ToolMeta[] = [
   { id: 'text-diff', name: '文本 Diff 对比', short: 'DIFF', desc: '两段文本差异高亮', path: '/tools/text-diff' },
   { id: 'qrcode', name: '二维码生成', short: 'QR', desc: '文本 / URL → 二维码', path: '/tools/qrcode' },
   { id: 'text', name: '文本小工具', short: 'TXT', desc: '大小写 / 行号 / 去重 / 排序', path: '/tools/text' },
+  { id: 'image-compress', name: '图片压缩', short: 'IMG', desc: '压缩 / 格式转换 / 批量', path: '/tools/image-compress' },
 ]
