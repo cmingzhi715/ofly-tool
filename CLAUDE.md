@@ -163,10 +163,20 @@ ofly-tool/
 - **类型优先**：props / emits / API 响应必须定义类型；禁止滥用 `any`。
 - **样式**：组件样式 `scoped`，只引用 §3 的令牌变量；禁止硬编码颜色/字体/圆角。
 - **Pinia**：使用 setup 写法（`defineStore` + Composition API），状态变更收敛到 store action。
-- **按需引入 / 控制首屏体积**：第三方依赖**禁止全局引入**，一律按需引入——
-  - 路由组件必须懒加载：`component: () => import('...')`，禁止在路由表顶部 `import` 整页组件（工具页依赖自动进入对应 chunk）。
-  - 工具用到的库（二维码、diff 等）只在对应工具视图内 `import`，不做全局 `app.use()` 注册；优先 tree-shakable 的具名导入（`import { xx } from 'lib'`），避免 `import lib` 整库。
-  - 骨架组件、通用工具函数走 ES 具名导出；新增大体积依赖前先评估是否可放工具内按需加载。
+- **首屏体积 / 按需引入（分层规范）**——
+  **首屏层（直接影响初始加载）：**
+  - 路由组件必须懒加载：`component: () => import('...')`，禁止在路由表顶部 `import` 整页组件；工具页依赖自动进入对应 chunk。
+  - 第三方依赖禁止全局引入，禁止 `app.use()` 全局注册插件/组件；骨架只引入必要依赖。
+  - 图标一律**内联 SVG 组件**，禁止引入图标库/字体图标（FontAwesome 全量 CSS、iconify 等）。
+  - 禁止引入重型 UI 框架（Element Plus / Naive / Ant）；组件全部自研、消费令牌。
+  - 禁止网络字体 / `@font-face` 外链字体；统一系统字体栈（本地工具离线可用、零字体下载）。
+  - 构建目标对齐现代浏览器：`vite.config.ts` 设 `build.target: 'es2022'`，减少转译垫片。
+  **工具 chunk 层（进入工具才加载，不影响首屏）：**
+  - 工具优先使用原生 API 实现：Hash 用 Web Crypto（SHA-1/256/384/512）、Base64 用 `btoa`/`atob` + `TextEncoder`、URL 用 `encodeURIComponent` 等。
+  - 仅当原生 API 确实缺失时（如 MD5、二维码）才在**对应工具视图内**按需引入轻量库；该依赖只进入工具 chunk，不得外泄到全局。
+  - 工具内重型子组件可用 `defineAsyncComponent` 异步挂载（如二维码画布、图片处理面板）。
+  - 优先 tree-shakable 具名导入（`import { xx } from 'lib'`），避免 `import lib` 整库。
+  - 新增大体积依赖前先评估：能否原生 API 替代 / 能否放工具内按需 / 体积是否可控。
 - 新工具的实现与视觉必须同时适配两套皮肤（切换皮肤后不出现样式缺失或破版）。
 
 ---
