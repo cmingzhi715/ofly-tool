@@ -163,6 +163,10 @@ ofly-tool/
 - **类型优先**：props / emits / API 响应必须定义类型；禁止滥用 `any`。
 - **样式**：组件样式 `scoped`，只引用 §3 的令牌变量；禁止硬编码颜色/字体/圆角。
 - **Pinia**：使用 setup 写法（`defineStore` + Composition API），状态变更收敛到 store action。
+- **按需引入 / 控制首屏体积**：第三方依赖**禁止全局引入**，一律按需引入——
+  - 路由组件必须懒加载：`component: () => import('...')`，禁止在路由表顶部 `import` 整页组件（工具页依赖自动进入对应 chunk）。
+  - 工具用到的库（二维码、diff 等）只在对应工具视图内 `import`，不做全局 `app.use()` 注册；优先 tree-shakable 的具名导入（`import { xx } from 'lib'`），避免 `import lib` 整库。
+  - 骨架组件、通用工具函数走 ES 具名导出；新增大体积依赖前先评估是否可放工具内按需加载。
 - 新工具的实现与视觉必须同时适配两套皮肤（切换皮肤后不出现样式缺失或破版）。
 
 ---
