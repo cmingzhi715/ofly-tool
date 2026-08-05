@@ -105,7 +105,7 @@ html[data-skin='neon'] h1 {
   font-size: clamp(24px, 4vw, 40px);
   font-weight: 800;
   letter-spacing: 0.06em;
-  background: linear-gradient(90deg, var(--color-accent), #7b5cff 55%, var(--color-accent-2));
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-3) 55%, var(--color-accent-2));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
