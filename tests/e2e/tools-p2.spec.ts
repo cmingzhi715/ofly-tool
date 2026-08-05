@@ -43,61 +43,74 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
       return new Blob([bytes], { type: mime })
     }
     const written: string[] = []
-    ;(window as any).__written = written
+    ;(window as unknown as { __written: string[] }).__written = written
 
-    const makeDir = (name: string): any => {
+    interface FakeWritable {
+      write(data: Blob): Promise<void>
+      close(): Promise<void>
+    }
+    interface FakeFileHandle {
+      name: string
+      kind: 'file'
+      getFile(): Promise<File>
+      createWritable(): Promise<FakeWritable>
+    }
+    interface FakeDirHandle {
+      name: string
+      kind: 'directory'
+      entries(): AsyncGenerator<[string, FakeFileHandle | FakeDirHandle]>
+      getDirectoryHandle(name: string, opts?: { create?: boolean }): Promise<FakeDirHandle>
+      getFileHandle(name: string, opts?: { create?: boolean }): Promise<FakeFileHandle>
+    }
+
+    const makeDir = (name: string): FakeDirHandle => {
       const files = new Map<string, Blob>()
       if (name === 'photos') {
         files.set('a.png', blobFromUrl(pngUrl))
         files.set('b.png', blobFromUrl(pngUrl))
       }
-      const dirs = new Map<string, any>()
+      const dirs = new Map<string, FakeDirHandle>()
+      const fileHandle = (n: string): FakeFileHandle => ({
+        name: n,
+        kind: 'file',
+        async getFile() {
+          return new File([files.get(n)!], n, { type: 'image/png' })
+        },
+        async createWritable() {
+          let stored: Blob = files.get(n)!
+          return {
+            async write(data: Blob) {
+              stored = data
+            },
+            async close() {
+              files.set(n, stored)
+              written.push(n)
+            },
+          }
+        },
+      })
       return {
         name,
         kind: 'directory',
         async *entries() {
-          for (const [n, b] of files) {
-            yield [
-              n,
-              {
-                name: n,
-                kind: 'file',
-                async getFile() {
-                  return new File([b], n, { type: 'image/png' })
-                },
-              },
-            ]
-          }
+          for (const [n] of files) yield [n, fileHandle(n)]
           for (const [n, d] of dirs) yield [n, d]
         },
         async getDirectoryHandle(n: string, opts?: { create?: boolean }) {
           if (!dirs.has(n) && !opts?.create) throw new Error('not found')
           if (!dirs.has(n)) dirs.set(n, makeDir(n))
-          return dirs.get(n)
+          return dirs.get(n)!
         },
         async getFileHandle(n: string, opts?: { create?: boolean }) {
           if (!files.has(n) && !opts?.create) throw new Error('not found')
-          let stored: Blob = files.get(n)!
-          return {
-            name: n,
-            kind: 'file',
-            async createWritable() {
-              return {
-                async write(data: Blob) {
-                  stored = data
-                },
-                async close() {
-                  files.set(n, stored)
-                  written.push(n)
-                },
-              }
-            },
-          }
+          if (!files.has(n)) files.set(n, new Blob())
+          return fileHandle(n)
         },
       }
     }
 
-    ;(window as any).showDirectoryPicker = () => Promise.resolve(makeDir('photos'))
+    ;(window as unknown as { showDirectoryPicker(): Promise<FakeDirHandle> }).showDirectoryPicker =
+      () => Promise.resolve(makeDir('photos'))
   }, PNG_B64)
 
   await page.goto('/tools/image-compress')
@@ -105,7 +118,7 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
   await expect(page.locator('.ic-list')).toContainText('a.png')
   await page.locator('.ic-batch-run').click()
   await expect(page.locator('.ic-done')).toContainText('成功 2')
-  const written = await page.evaluate(() => (window as any).__written)
+  const written = await page.evaluate(() => (window as unknown as { __written: string[] }).__written)
   expect(written).toEqual(['a.jpg', 'b.jpg'])
   // 转换前后大小对比表
   await expect(page.locator('.ic-table')).toContainText('a.jpg')
