@@ -6,7 +6,20 @@ const copied = ref(false)
 
 async function copy() {
   if (!props.text) return
-  await navigator.clipboard.writeText(props.text)
+  try {
+    await navigator.clipboard.writeText(props.text)
+  } catch {
+    // 降级：旧浏览器 / 非安全上下文，用 textarea 选中复制
+    const ta = document.createElement('textarea')
+    ta.value = props.text
+    document.body.appendChild(ta)
+    ta.select()
+    try {
+      document.execCommand('copy')
+    } finally {
+      ta.remove()
+    }
+  }
   copied.value = true
   setTimeout(() => (copied.value = false), 1500)
 }
