@@ -1,10 +1,6 @@
 // tests/e2e/tools-p2.spec.ts
 import { test, expect } from '@playwright/test'
 
-// 1×1 PNG（data URL）
-const PNG_B64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X2o8tQAAAABJRU5ErkJggg=='
-
 async function makePngBuffer(page: import('@playwright/test').Page): Promise<number[]> {
   return page.evaluate(async () => {
     const c = document.createElement('canvas')
@@ -32,8 +28,21 @@ test('图片压缩：单文件转换', async ({ page }) => {
 
 test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
   // 用 fake 目录句柄替换 showDirectoryPicker，驱动批量流程
-  await page.addInitScript((b64) => {
-    const pngUrl = 'data:image/png;base64,' + b64
+  await page.addInitScript(() => {
+    // 随机噪点图：内容复杂，转 JPEG 必然变小，确保批量走「成功写入」路径
+    const c = document.createElement('canvas')
+    c.width = 200
+    c.height = 200
+    const ctx = c.getContext('2d')!
+    const img = ctx.createImageData(200, 200)
+    for (let i = 0; i < img.data.length; i += 4) {
+      img.data[i] = Math.random() * 255
+      img.data[i + 1] = Math.random() * 255
+      img.data[i + 2] = Math.random() * 255
+      img.data[i + 3] = 255
+    }
+    ctx.putImageData(img, 0, 0)
+    const pngUrl = c.toDataURL('image/png')
     const blobFromUrl = (u: string): Blob => {
       const parts = u.split(',')
       const mime = parts[0].match(/:(.*?);/)![1]
@@ -111,7 +120,7 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
 
     ;(window as unknown as { showDirectoryPicker(): Promise<FakeDirHandle> }).showDirectoryPicker =
       () => Promise.resolve(makeDir('photos'))
-  }, PNG_B64)
+  })
 
   await page.goto('/tools/image-compress')
   await page.locator('.ic-pick').click()
