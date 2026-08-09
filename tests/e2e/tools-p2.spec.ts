@@ -124,10 +124,20 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
 
   await page.goto('/tools/image-compress')
   await page.locator('.ic-pick').click()
-  await expect(page.locator('.ic-list')).toContainText('a.png')
-  // 缩略图懒加载生成：进入视口后 img 带 blob: src
+  // 转换前：合并后的单表立即出现，含原文件名
+  await expect(page.locator('.ic-table')).toContainText('a.png')
+  await expect(page.locator('.ic-table')).toContainText('b.png')
+  // 原图缩略图懒加载生成：进入视口后 img 带 blob: src
   await expect(page.locator('.ic-thumb')).toHaveCount(2)
   await expect(page.locator('.ic-thumb').first()).toHaveAttribute('src', /^blob:/)
+  // 原大小在转换前即显示
+  await expect(page.locator('.ic-table')).toContainText('KB')
+  // 输出名可编辑（改回默认值，不影响写入断言）
+  const nameInput = page.locator('.ic-outname').first()
+  await expect(nameInput).toHaveValue('a.jpg')
+  await nameInput.fill('a-edit')
+  await expect(nameInput).toHaveValue('a-edit')
+  await nameInput.fill('a.jpg')
   await page.locator('.ic-batch-run').click()
   await expect(page.locator('.ic-done')).toContainText('成功 2')
   const written = await page.evaluate(() => (window as unknown as { __written: string[] }).__written)
