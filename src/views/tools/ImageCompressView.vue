@@ -501,16 +501,18 @@ onUnmounted(() => {
           </tr>
         </tbody>
       </table>
-      <ImagePreviewLightbox
-        v-if="currentResult"
-        :url="currentResult.previewUrl"
-        :name="currentResult.name"
-        :index="lightboxIndex ?? 0"
-        :total="results.length"
-        @close="closeLightbox"
-        @prev="moveLightbox(-1)"
-        @next="moveLightbox(1)"
-      />
+      <Teleport to="body">
+        <ImagePreviewLightbox
+          v-if="currentResult"
+          :url="currentResult.previewUrl"
+          :name="currentResult.name"
+          :index="lightboxIndex ?? 0"
+          :total="results.length"
+          @close="closeLightbox"
+          @prev="moveLightbox(-1)"
+          @next="moveLightbox(1)"
+        />
+      </Teleport>
     </div>
 
     <p v-if="error" class="ic-error">{{ error }}</p>
