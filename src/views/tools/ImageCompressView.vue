@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import ToolShell from '@/components/ToolShell.vue'
 import { finalizeOutName, findDuplicateNames } from '@/utils/image-name'
 
@@ -28,7 +28,12 @@ const error = ref('')
 const fsSupported = typeof showDirectoryPicker === 'function'
 const dirHandle = ref<FileSystemDirectoryHandle | null>(null)
 const folderName = ref('')
-const items = ref<{ name: string; file: File }[]>([])
+interface BatchItem {
+  name: string
+  file: File
+  thumbUrl: string | null
+}
+const items = ref<BatchItem[]>([])
 const progress = ref({ done: 0, total: 0 })
 const doneInfo = ref('')
 
@@ -171,6 +176,7 @@ async function pickFolder() {
 }
 
 async function loadFromDir(dir: FileSystemDirectoryHandle) {
+  for (const it of items.value) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl)
   items.value = []
   outNames.value = []
   invalidRows.value = []
@@ -180,7 +186,7 @@ async function loadFromDir(dir: FileSystemDirectoryHandle) {
     if (handle.kind !== 'file') continue
     if (!isImg.test(handle.name)) continue
     const file = await handle.getFile()
-    items.value.push({ name: handle.name, file })
+    items.value.push({ name: handle.name, file, thumbUrl: null })
     outNames.value.push(outName(handle.name))
   }
 }
@@ -263,6 +269,11 @@ async function runBatch() {
   }
   doneInfo.value = `成功 ${ok}，失败 ${fail}，已写入 ${coveredName}/`
 }
+
+// 组件卸载：释放所有缩略图 objectURL，断开懒加载观察
+onUnmounted(() => {
+  for (const it of items.value) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl)
+})
 </script>
 
 <template>
