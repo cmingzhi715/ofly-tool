@@ -35,6 +35,7 @@ interface BatchItem {
   name: string
   file: File
   thumbUrl: string | null
+  origKb: string
 }
 const items = ref<BatchItem[]>([])
 const progress = ref({ done: 0, total: 0 })
@@ -223,7 +224,10 @@ async function pickFolder() {
 
 async function loadFromDir(dir: FileSystemDirectoryHandle) {
   for (const it of items.value) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl)
+  for (const r of results.value) if (r.previewUrl) URL.revokeObjectURL(r.previewUrl)
   items.value = []
+  results.value = []
+  lightboxIndex.value = null
   outNames.value = []
   invalidRows.value = []
   doneInfo.value = ''
@@ -232,7 +236,12 @@ async function loadFromDir(dir: FileSystemDirectoryHandle) {
     if (handle.kind !== 'file') continue
     if (!isImg.test(handle.name)) continue
     const file = await handle.getFile()
-    items.value.push({ name: handle.name, file, thumbUrl: null })
+    items.value.push({
+      name: handle.name,
+      file,
+      thumbUrl: null,
+      origKb: (file.size / 1024).toFixed(1),
+    })
     outNames.value.push(outName(handle.name))
   }
 }
@@ -273,7 +282,7 @@ async function runBatch() {
   let ok = 0
   let fail = 0
   for (const [i, item] of items.value.entries()) {
-    const origKb = (item.file.size / 1024).toFixed(1)
+    const origKb = item.origKb
     const finalName = finalNames[i]!
     const userOut = outNames.value[i] ?? ''
     try {
