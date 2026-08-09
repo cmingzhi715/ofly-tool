@@ -44,14 +44,15 @@ interface BatchResult {
   newKb: string
   pct: string
   bigger: boolean
+  previewUrl: string | null
 }
 const results = ref<BatchResult[]>([])
 // 批量输出名（与 items 对齐，可编辑）与校验失败的行索引
 const outNames = ref<string[]>([])
 const invalidRows = ref<number[]>([])
 
-async function decodeImage(file: File): Promise<HTMLImageElement> {
-  const url = URL.createObjectURL(file)
+async function decodeImage(source: Blob): Promise<HTMLImageElement> {
+  const url = URL.createObjectURL(source)
   try {
     return await new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image()
@@ -119,6 +120,27 @@ async function makeThumb(file: File): Promise<string> {
   return await new Promise<string>((resolve, reject) => {
     canvas.toBlob(
       (blob) => (blob ? resolve(URL.createObjectURL(blob)) : reject(new Error('缩略图生成失败'))),
+      'image/jpeg',
+      0.8,
+    )
+  })
+}
+
+// 生成转换结果预览：长边 ≤1280px 的 JPEG objectURL（白底防透明变黑）
+async function makePreview(source: Blob): Promise<string> {
+  const img = await decodeImage(source)
+  const { w, h } = thumbSize(img.naturalWidth, img.naturalHeight, 1280)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('浏览器不支持 canvas')
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, w, h)
+  ctx.drawImage(img, 0, 0, w, h)
+  return await new Promise<string>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(URL.createObjectURL(blob)) : reject(new Error('预览生成失败'))),
       'image/jpeg',
       0.8,
     )
@@ -220,6 +242,7 @@ async function runBatch() {
   }
   error.value = ''
   doneInfo.value = ''
+  for (const r of results.value) if (r.previewUrl) URL.revokeObjectURL(r.previewUrl)
   results.value = []
   // 转换前统一规范化输出名，重名则中止
   const finalNames = items.value.map((it, i) =>
@@ -261,12 +284,14 @@ async function runBatch() {
         await w.write(item.file)
         await w.close()
         const grow = (((blob.size - item.file.size) / item.file.size) * 100).toFixed(0)
+        const previewUrl = await makePreview(item.file).catch(() => null)
         results.value.push({
           name: fallbackName,
           origKb,
           newKb: (item.file.size / 1024).toFixed(1),
           pct: `保留原图（+${grow}%）`,
           bigger: true,
+          previewUrl,
         })
       } else {
         const fh = await covered.getFileHandle(finalName, { create: true })
@@ -274,17 +299,26 @@ async function runBatch() {
         await w.write(blob)
         await w.close()
         const change = ((blob.size - item.file.size) / item.file.size) * 100
+        const previewUrl = await makePreview(blob).catch(() => null)
         results.value.push({
           name: finalName,
           origKb,
           newKb: (blob.size / 1024).toFixed(1),
           pct: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`,
           bigger: change > 0,
+          previewUrl,
         })
       }
       ok++
     } catch {
-      results.value.push({ name: finalName, origKb, newKb: '失败', pct: '—', bigger: false })
+      results.value.push({
+        name: finalName,
+        origKb,
+        newKb: '失败',
+        pct: '—',
+        bigger: false,
+        previewUrl: null,
+      })
       fail++
     }
     progress.value.done++
@@ -321,10 +355,11 @@ const vLazyThumb = {
   },
 }
 
-// 组件卸载：释放所有缩略图 objectURL，断开懒加载观察
+// 组件卸载：释放所有缩略图与结果预览 objectURL，断开懒加载观察
 onUnmounted(() => {
   thumbObserver.disconnect()
   for (const it of items.value) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl)
+  for (const r of results.value) if (r.previewUrl) URL.revokeObjectURL(r.previewUrl)
 })
 </script>
 
