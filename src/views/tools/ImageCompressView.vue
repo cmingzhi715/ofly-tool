@@ -50,6 +50,15 @@ interface BatchResult {
   previewUrl: string | null
 }
 const results = ref<BatchResult[]>([])
+
+// 单表行：转换前信息（item）与转换后结果（result）按索引合并；运行前 result 为 null
+interface BatchRow {
+  item: BatchItem
+  result: BatchResult | null
+}
+const rows = computed<BatchRow[]>(() =>
+  items.value.map((item, i) => ({ item, result: results.value[i] ?? null })),
+)
 // 批量输出名（与 items 对齐，可编辑）与校验失败的行索引
 const outNames = ref<string[]>([])
 const invalidRows = ref<number[]>([])
@@ -389,6 +398,18 @@ function moveLightbox(dir: 1 | -1) {
   if (next !== null) lightboxIndex.value = next
 }
 
+function resultSizeText(r: BatchResult | null): string {
+  if (!r) return '—'
+  return r.newKb === '失败' ? '失败' : `${r.newKb} KB`
+}
+function resultPctText(r: BatchResult | null): string {
+  return r ? r.pct : '—'
+}
+function resultPctClass(r: BatchResult | null): string {
+  if (!r) return ''
+  return r.bigger ? 'ic-grow' : 'ic-save'
+}
+
 // 组件卸载：释放所有缩略图与结果预览 objectURL，断开懒加载观察
 onUnmounted(() => {
   thumbObserver.disconnect()
@@ -452,28 +473,58 @@ onUnmounted(() => {
         </button>
       </div>
       <p v-if="folderName" class="ic-origin">已选：{{ folderName }}（{{ items.length }} 个图片）</p>
-      <ul v-if="items.length" class="ic-list">
-        <li
-          v-for="(it, i) in items"
-          :key="it.name"
-          class="ic-item-row"
-          :class="{ 'ic-invalid': invalidRows.includes(i) }"
-        >
-          <span class="ic-item">{{ it.name }}</span>
-          <img
-            v-lazy-thumb="i"
-            class="ic-thumb"
-            :class="{ 'ic-thumb-empty': !it.thumbUrl }"
-            :src="it.thumbUrl ?? undefined"
-            alt=""
-          />
-          <input
-            v-model="outNames[i]"
-            class="input ic-outname"
-            :placeholder="outName(it.name)"
-          />
-        </li>
-      </ul>
+      <div v-if="items.length" class="ic-table-wrap">
+        <table class="ic-table">
+          <thead>
+            <tr>
+              <th>原图</th>
+              <th>文件名 / 输出名</th>
+              <th>原大小</th>
+              <th>转换后</th>
+              <th>预览</th>
+              <th>变化</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(row, i) in rows"
+              :key="row.item.name"
+              :class="{ 'ic-invalid': invalidRows.includes(i) }"
+            >
+              <td>
+                <img
+                  v-lazy-thumb="i"
+                  class="ic-thumb"
+                  :class="{ 'ic-thumb-empty': !row.item.thumbUrl }"
+                  :src="row.item.thumbUrl ?? undefined"
+                  alt=""
+                />
+              </td>
+              <td class="ic-t-name">
+                <span class="ic-fname">{{ row.item.name }}</span>
+                <input
+                  v-model="outNames[i]"
+                  class="input ic-outname"
+                  :placeholder="outName(row.item.name)"
+                />
+              </td>
+              <td class="ic-size">{{ row.item.origKb }} KB</td>
+              <td>{{ resultSizeText(row.result) }}</td>
+              <td>
+                <img
+                  v-if="row.result?.previewUrl"
+                  class="ic-result-thumb"
+                  :src="row.result!.previewUrl"
+                  :alt="row.result!.name"
+                  @click="openLightbox(i)"
+                />
+                <span v-else class="ic-result-empty">—</span>
+              </td>
+              <td :class="resultPctClass(row.result)">{{ resultPctText(row.result) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="ic-actions">
         <button type="button" class="btn ic-batch-run" :disabled="!items.length" @click="runBatch">
           开始转换
@@ -481,35 +532,6 @@ onUnmounted(() => {
       </div>
       <p v-if="progress.total" class="ic-progress">进度：{{ progress.done }} / {{ progress.total }}</p>
       <p v-if="doneInfo" class="ic-done">{{ doneInfo }}</p>
-      <table v-if="results.length" class="ic-table">
-        <thead>
-          <tr>
-            <th>文件</th>
-            <th>原大小</th>
-            <th>转换后</th>
-            <th>预览</th>
-            <th>变化</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(r, i) in results" :key="r.name">
-            <td class="ic-t-name">{{ r.name }}</td>
-            <td>{{ r.origKb }} KB</td>
-            <td>{{ r.newKb === '失败' ? '失败' : r.newKb + ' KB' }}</td>
-            <td>
-              <img
-                v-if="r.previewUrl"
-                class="ic-result-thumb"
-                :src="r.previewUrl"
-                :alt="r.name"
-                @click="openLightbox(i)"
-              />
-              <span v-else class="ic-result-empty">—</span>
-            </td>
-            <td :class="r.bigger ? 'ic-grow' : 'ic-save'">{{ r.pct }}</td>
-          </tr>
-        </tbody>
-      </table>
       <Teleport to="body">
         <ImagePreviewLightbox
           v-if="currentResult"
