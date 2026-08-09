@@ -607,33 +607,8 @@ onUnmounted(() => {
   font-size: 13px;
   margin-bottom: 10px;
 }
-.ic-list {
-  max-height: 200px;
-  overflow: auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: var(--color-surface-2);
-  padding: 8px 12px;
-  margin-bottom: 12px;
-}
-.ic-item {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-text);
-  line-height: 1.8;
-}
-.ic-item-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 0;
-}
-.ic-item-row .ic-item {
-  flex: 1;
-  min-width: 0;
-}
 .ic-thumb {
-  flex: none;
+  display: block;
   width: 64px;
   height: 64px;
   object-fit: cover;
@@ -648,7 +623,8 @@ onUnmounted(() => {
   place-items: center;
 }
 .ic-outname {
-  flex: 0 0 240px;
+  width: 100%;
+  margin-top: 4px;
   padding: 4px 8px;
   font-size: 12px;
   font-family: var(--font-mono);
@@ -667,10 +643,15 @@ onUnmounted(() => {
   color: var(--color-accent);
   font-family: var(--font-mono);
 }
+.ic-table-wrap {
+  max-height: 360px;
+  overflow: auto;
+  margin-top: 10px;
+}
 .ic-table {
   width: max-content;
   max-width: 100%;
-  margin-top: 10px;
+  margin-top: 0;
   border-collapse: collapse;
   font-family: var(--font-mono);
   font-size: 12px;
@@ -680,14 +661,26 @@ onUnmounted(() => {
   border: 1px solid var(--color-border);
   padding: 6px 10px;
   text-align: left;
+  vertical-align: middle;
 }
 .ic-table th {
   color: var(--color-text-muted);
   font-weight: 400;
 }
 .ic-t-name {
-  min-width: 140px;
+  min-width: 170px;
+}
+.ic-fname {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text);
+  line-height: 1.6;
   word-break: break-all;
+}
+.ic-size {
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 .ic-save {
   color: var(--color-accent);
