@@ -3,6 +3,8 @@ import { computed, onUnmounted, ref } from 'vue'
 import ToolShell from '@/components/ToolShell.vue'
 import { finalizeOutName, findDuplicateNames } from '@/utils/image-name'
 import { thumbSize } from '@/utils/thumb'
+import { nextPreviewIndex } from '@/utils/preview-nav'
+import ImagePreviewLightbox from '@/components/ImagePreviewLightbox.vue'
 
 type Format = 'jpeg' | 'webp' | 'png'
 
@@ -244,6 +246,7 @@ async function runBatch() {
   doneInfo.value = ''
   for (const r of results.value) if (r.previewUrl) URL.revokeObjectURL(r.previewUrl)
   results.value = []
+  lightboxIndex.value = null
   // 转换前统一规范化输出名，重名则中止
   const finalNames = items.value.map((it, i) =>
     finalizeOutName(outNames.value[i] ?? '', it.name, outExt.value),
@@ -355,6 +358,28 @@ const vLazyThumb = {
   },
 }
 
+// 结果预览灯箱：当前打开的行索引（null = 关闭）
+const lightboxIndex = ref<number | null>(null)
+const currentResult = computed<BatchResult | null>(() =>
+  lightboxIndex.value === null ? null : (results.value[lightboxIndex.value] ?? null),
+)
+
+function openLightbox(i: number) {
+  if (results.value[i]?.previewUrl) lightboxIndex.value = i
+}
+function closeLightbox() {
+  lightboxIndex.value = null
+}
+function moveLightbox(dir: 1 | -1) {
+  if (lightboxIndex.value === null) return
+  const next = nextPreviewIndex(
+    results.value.map((r) => r.previewUrl !== null),
+    lightboxIndex.value,
+    dir,
+  )
+  if (next !== null) lightboxIndex.value = next
+}
+
 // 组件卸载：释放所有缩略图与结果预览 objectURL，断开懒加载观察
 onUnmounted(() => {
   thumbObserver.disconnect()
@@ -463,13 +488,29 @@ onUnmounted(() => {
             <td>{{ r.origKb }} KB</td>
             <td>{{ r.newKb === '失败' ? '失败' : r.newKb + ' KB' }}</td>
             <td>
-              <img v-if="r.previewUrl" class="ic-result-thumb" :src="r.previewUrl" :alt="r.name" />
+              <img
+                v-if="r.previewUrl"
+                class="ic-result-thumb"
+                :src="r.previewUrl"
+                :alt="r.name"
+                @click="openLightbox(i)"
+              />
               <span v-else class="ic-result-empty">—</span>
             </td>
             <td :class="r.bigger ? 'ic-grow' : 'ic-save'">{{ r.pct }}</td>
           </tr>
         </tbody>
       </table>
+      <ImagePreviewLightbox
+        v-if="currentResult"
+        :url="currentResult.previewUrl"
+        :name="currentResult.name"
+        :index="lightboxIndex ?? 0"
+        :total="results.length"
+        @close="closeLightbox"
+        @prev="moveLightbox(-1)"
+        @next="moveLightbox(1)"
+      />
     </div>
 
     <p v-if="error" class="ic-error">{{ error }}</p>
