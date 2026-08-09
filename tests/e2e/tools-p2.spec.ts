@@ -136,4 +136,17 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
   await expect(page.locator('.ic-table')).toContainText('a.jpg')
   await expect(page.locator('.ic-table')).toContainText('b.jpg')
   await expect(page.locator('.ic-table')).toContainText('KB')
+  // 预览列：每行一张 blob 预览图
+  await expect(page.locator('.ic-result-thumb')).toHaveCount(2)
+  await expect(page.locator('.ic-result-thumb').first()).toHaveAttribute('src', /^blob:/)
+  // 灯箱：点击打开 → 方向键翻页 → Esc 关闭
+  await page.locator('.ic-result-thumb').first().click()
+  await expect(page.locator('.ipl-backdrop')).toBeVisible()
+  await expect(page.locator('.ipl-title')).toContainText('a.jpg · 1 / 2')
+  await page.keyboard.press('ArrowRight')
+  await expect(page.locator('.ipl-title')).toContainText('b.jpg · 2 / 2')
+  await page.keyboard.press('ArrowLeft')
+  await expect(page.locator('.ipl-title')).toContainText('a.jpg · 1 / 2')
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.ipl-backdrop')).toHaveCount(0)
 })
