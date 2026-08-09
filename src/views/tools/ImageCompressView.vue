@@ -20,6 +20,7 @@ const singleFile = ref<File | null>(null)
 const singleOrig = ref('')
 const singleOutUrl = ref('')
 const singleInfo = ref('')
+const keptOriginal = ref(false)
 const error = ref('')
 
 // 文件夹批量状态（showDirectoryPicker 为全局函数声明，非 Window 方法）
@@ -71,11 +72,26 @@ async function convertImage(file: File): Promise<Blob> {
     ctx.fillRect(0, 0, w, h)
   }
   ctx.drawImage(img, 0, 0, w, h)
+  if (format.value === 'png') return quantizePng(ctx, w, h)
   const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, MIME[format.value], format.value === 'png' ? undefined : quality.value),
+    canvas.toBlob(resolve, MIME[format.value], quality.value),
   )
   if (!blob) throw new Error('转换失败')
   return blob
+}
+
+// PNG 有损压缩（libimagequant wasm，仅在 PNG 输出时按需加载）
+async function quantizePng(ctx: CanvasRenderingContext2D, w: number, h: number): Promise<Blob> {
+  const { ImagequantImage, Imagequant } = await import('imagequant')
+  const imageData = ctx.getImageData(0, 0, w, h)
+  const px = new Uint8Array(imageData.data.buffer, imageData.data.byteOffset, imageData.data.byteLength)
+  const image = new ImagequantImage(px, w, h, 0)
+  const instance = new Imagequant()
+  // 质量滑块 0.1~1 → libimagequant 0~100
+  instance.set_quality(0, Math.round(quality.value * 100))
+  const output = instance.process(image)
+  const png = new Uint8Array(output)
+  return new Blob([png], { type: 'image/png' })
 }
 
 const outExt = computed(() => EXT[format.value])
@@ -109,10 +125,17 @@ async function compressSingle() {
   error.value = ''
   try {
     const blob = await convertImage(f)
+    keptOriginal.value = blob.size >= f.size
     if (singleOutUrl.value) URL.revokeObjectURL(singleOutUrl.value)
-    singleOutUrl.value = URL.createObjectURL(blob)
-    const change = (((blob.size - f.size) / f.size) * 100).toFixed(0)
-    singleInfo.value = `原 ${(f.size / 1024).toFixed(1)} KB → ${(blob.size / 1024).toFixed(1)} KB（${change}%）`
+    if (keptOriginal.value) {
+      singleOutUrl.value = URL.createObjectURL(f)
+      const grow = (((blob.size - f.size) / f.size) * 100).toFixed(0)
+      singleInfo.value = `未压缩，已保留原图（重编码将 +${grow}%）· 原 ${(f.size / 1024).toFixed(1)} KB`
+    } else {
+      singleOutUrl.value = URL.createObjectURL(blob)
+      const change = (((blob.size - f.size) / f.size) * 100).toFixed(0)
+      singleInfo.value = `原 ${(f.size / 1024).toFixed(1)} KB → ${(blob.size / 1024).toFixed(1)} KB（${change}%）`
+    }
   } catch (err) {
     error.value = err instanceof Error ? err.message : '压缩失败'
   }
@@ -122,7 +145,7 @@ function downloadSingle() {
   if (!singleOutUrl.value || !singleFile.value) return
   const a = document.createElement('a')
   a.href = singleOutUrl.value
-  a.download = outName(singleFile.value.name)
+  a.download = keptOriginal.value ? singleFile.value.name : outName(singleFile.value.name)
   a.click()
 }
 
@@ -178,18 +201,34 @@ async function runBatch() {
     const origKb = (item.file.size / 1024).toFixed(1)
     try {
       const blob = await convertImage(item.file)
-      const fh = await covered.getFileHandle(outName(item.name), { create: true })
-      const w = await fh.createWritable()
-      await w.write(blob)
-      await w.close()
-      const change = ((blob.size - item.file.size) / item.file.size) * 100
-      results.value.push({
-        name: outName(item.name),
-        origKb,
-        newKb: (blob.size / 1024).toFixed(1),
-        pct: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`,
-        bigger: change > 0,
-      })
+      // 兜底：结果不比原图小就保留原文件，绝不写出更大的文件
+      if (blob.size >= item.file.size) {
+        const fh = await covered.getFileHandle(item.name, { create: true })
+        const w = await fh.createWritable()
+        await w.write(item.file)
+        await w.close()
+        const grow = (((blob.size - item.file.size) / item.file.size) * 100).toFixed(0)
+        results.value.push({
+          name: item.name,
+          origKb,
+          newKb: (item.file.size / 1024).toFixed(1),
+          pct: `保留原图（+${grow}%）`,
+          bigger: true,
+        })
+      } else {
+        const fh = await covered.getFileHandle(outName(item.name), { create: true })
+        const w = await fh.createWritable()
+        await w.write(blob)
+        await w.close()
+        const change = ((blob.size - item.file.size) / item.file.size) * 100
+        results.value.push({
+          name: outName(item.name),
+          origKb,
+          newKb: (blob.size / 1024).toFixed(1),
+          pct: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`,
+          bigger: change > 0,
+        })
+      }
       ok++
     } catch {
       results.value.push({ name: outName(item.name), origKb, newKb: '失败', pct: '—', bigger: false })
@@ -221,7 +260,6 @@ async function runBatch() {
           max="1"
           step="0.05"
           class="ic-quality"
-          :disabled="format === 'png'"
         />
       </label>
       <label class="ic-opt">
@@ -239,7 +277,7 @@ async function runBatch() {
       </div>
       <div v-if="singleOutUrl" class="ic-out">
         <div class="ic-out-head">
-          <span class="ic-out-label">{{ singleInfo }}</span>
+          <span class="ic-out-label" :class="{ 'ic-kept': keptOriginal }">{{ singleInfo }}</span>
           <button type="button" class="btn btn-ghost" @click="downloadSingle">下载</button>
         </div>
         <img class="ic-preview" :src="singleOutUrl" alt="压缩结果" />
@@ -418,6 +456,9 @@ async function runBatch() {
   font-size: 13px;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
+}
+.ic-kept {
+  color: var(--color-accent-2);
 }
 .ic-preview {
   max-width: 100%;
