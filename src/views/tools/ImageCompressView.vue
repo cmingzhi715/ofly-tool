@@ -637,7 +637,8 @@ onUnmounted(() => {
   font-family: var(--font-mono);
 }
 .ic-table {
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   margin-top: 10px;
   border-collapse: collapse;
   font-family: var(--font-mono);
@@ -654,6 +655,7 @@ onUnmounted(() => {
   font-weight: 400;
 }
 .ic-t-name {
+  min-width: 140px;
   word-break: break-all;
 }
 .ic-save {
