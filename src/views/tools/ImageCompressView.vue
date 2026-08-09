@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import ToolShell from '@/components/ToolShell.vue'
+import { finalizeOutName, findDuplicateNames } from '@/utils/image-name'
 
 type Format = 'jpeg' | 'webp' | 'png'
 
@@ -192,6 +193,20 @@ async function runBatch() {
   error.value = ''
   doneInfo.value = ''
   results.value = []
+  // 转换前统一规范化输出名，重名则中止
+  const finalNames = items.value.map((it, i) =>
+    finalizeOutName(outNames.value[i] ?? '', it.name, outExt.value),
+  )
+  const dups = findDuplicateNames(finalNames)
+  if (dups.length) {
+    const dupSet = new Set(dups)
+    invalidRows.value = finalNames
+      .map((n, i) => (dupSet.has(n) ? i : -1))
+      .filter((i) => i >= 0)
+    error.value = `输出名重复：${dups.join('、')}`
+    return
+  }
+  invalidRows.value = []
   const coveredName = `${folderName.value}_covered`
   let covered: FileSystemDirectoryHandle
   try {
@@ -203,32 +218,36 @@ async function runBatch() {
   progress.value = { done: 0, total: items.value.length }
   let ok = 0
   let fail = 0
-  for (const item of items.value) {
+  for (const [i, item] of items.value.entries()) {
     const origKb = (item.file.size / 1024).toFixed(1)
+    const finalName = finalNames[i]!
+    const userOut = outNames.value[i] ?? ''
     try {
       const blob = await convertImage(item.file)
       // 兜底：结果不比原图小就保留原文件，绝不写出更大的文件
       if (blob.size >= item.file.size) {
-        const fh = await covered.getFileHandle(item.name, { create: true })
+        const origExt = item.name.slice(item.name.lastIndexOf('.') + 1)
+        const fallbackName = finalizeOutName(userOut, item.name, origExt)
+        const fh = await covered.getFileHandle(fallbackName, { create: true })
         const w = await fh.createWritable()
         await w.write(item.file)
         await w.close()
         const grow = (((blob.size - item.file.size) / item.file.size) * 100).toFixed(0)
         results.value.push({
-          name: item.name,
+          name: fallbackName,
           origKb,
           newKb: (item.file.size / 1024).toFixed(1),
           pct: `保留原图（+${grow}%）`,
           bigger: true,
         })
       } else {
-        const fh = await covered.getFileHandle(outName(item.name), { create: true })
+        const fh = await covered.getFileHandle(finalName, { create: true })
         const w = await fh.createWritable()
         await w.write(blob)
         await w.close()
         const change = ((blob.size - item.file.size) / item.file.size) * 100
         results.value.push({
-          name: outName(item.name),
+          name: finalName,
           origKb,
           newKb: (blob.size / 1024).toFixed(1),
           pct: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`,
@@ -237,7 +256,7 @@ async function runBatch() {
       }
       ok++
     } catch {
-      results.value.push({ name: outName(item.name), origKb, newKb: '失败', pct: '—', bigger: false })
+      results.value.push({ name: finalName, origKb, newKb: '失败', pct: '—', bigger: false })
       fail++
     }
     progress.value.done++
