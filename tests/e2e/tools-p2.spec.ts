@@ -142,9 +142,11 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
   await expect(page.locator('.ic-done')).toContainText('成功 2')
   const written = await page.evaluate(() => (window as unknown as { __written: string[] }).__written)
   expect(written).toEqual(['a.jpg', 'b.jpg'])
-  // 转换前后大小对比表
-  await expect(page.locator('.ic-table')).toContainText('a.jpg')
-  await expect(page.locator('.ic-table')).toContainText('b.jpg')
+  // 转换后：同一张单表内补全，原文件名与输出名输入仍在
+  await expect(page.locator('.ic-table')).toContainText('a.png')
+  await expect(page.locator('.ic-table')).toContainText('b.png')
+  await expect(page.locator('.ic-outname').first()).toHaveValue('a.jpg')
+  await expect(page.locator('.ic-outname').nth(1)).toHaveValue('b.jpg')
   await expect(page.locator('.ic-table')).toContainText('KB')
   // 预览列：每行一张 blob 预览图
   await expect(page.locator('.ic-result-thumb')).toHaveCount(2)
