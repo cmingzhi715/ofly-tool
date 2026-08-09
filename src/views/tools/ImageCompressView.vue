@@ -39,6 +39,9 @@ interface BatchResult {
   bigger: boolean
 }
 const results = ref<BatchResult[]>([])
+// 批量输出名（与 items 对齐，可编辑）与校验失败的行索引
+const outNames = ref<string[]>([])
+const invalidRows = ref<number[]>([])
 
 async function decodeImage(file: File): Promise<HTMLImageElement> {
   const url = URL.createObjectURL(file)
@@ -168,6 +171,8 @@ async function pickFolder() {
 
 async function loadFromDir(dir: FileSystemDirectoryHandle) {
   items.value = []
+  outNames.value = []
+  invalidRows.value = []
   doneInfo.value = ''
   const isImg = /\.(png|jpe?g|webp|gif|bmp|avif)$/i
   for await (const [, handle] of dir.entries()) {
@@ -175,6 +180,7 @@ async function loadFromDir(dir: FileSystemDirectoryHandle) {
     if (!isImg.test(handle.name)) continue
     const file = await handle.getFile()
     items.value.push({ name: handle.name, file })
+    outNames.value.push(outName(handle.name))
   }
 }
 
@@ -296,7 +302,19 @@ async function runBatch() {
       </div>
       <p v-if="folderName" class="ic-origin">已选：{{ folderName }}（{{ items.length }} 个图片）</p>
       <ul v-if="items.length" class="ic-list">
-        <li v-for="it in items" :key="it.name" class="ic-item">{{ it.name }}</li>
+        <li
+          v-for="(it, i) in items"
+          :key="it.name"
+          class="ic-item-row"
+          :class="{ 'ic-invalid': invalidRows.includes(i) }"
+        >
+          <span class="ic-item">{{ it.name }}</span>
+          <input
+            v-model="outNames[i]"
+            class="input ic-outname"
+            :placeholder="outName(it.name)"
+          />
+        </li>
       </ul>
       <div class="ic-actions">
         <button type="button" class="btn ic-batch-run" :disabled="!items.length" @click="runBatch">
@@ -400,6 +418,26 @@ async function runBatch() {
   font-size: 12px;
   color: var(--color-text);
   line-height: 1.8;
+}
+.ic-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+.ic-item-row .ic-item {
+  flex: 1;
+  min-width: 0;
+}
+.ic-outname {
+  flex: 0 0 240px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+.ic-invalid {
+  outline: 1px solid var(--color-accent-2);
+  border-radius: var(--radius);
 }
 .ic-progress {
   font-size: 13px;
