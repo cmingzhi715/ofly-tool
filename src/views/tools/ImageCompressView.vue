@@ -391,6 +391,13 @@ onUnmounted(() => {
           :class="{ 'ic-invalid': invalidRows.includes(i) }"
         >
           <span class="ic-item">{{ it.name }}</span>
+          <img
+            v-lazy-thumb="i"
+            class="ic-thumb"
+            :class="{ 'ic-thumb-empty': !it.thumbUrl }"
+            :src="it.thumbUrl ?? undefined"
+            alt=""
+          />
           <input
             v-model="outNames[i]"
             class="input ic-outname"
@@ -510,6 +517,21 @@ onUnmounted(() => {
 .ic-item-row .ic-item {
   flex: 1;
   min-width: 0;
+}
+.ic-thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+}
+.ic-thumb-empty {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  display: grid;
+  place-items: center;
 }
 .ic-outname {
   flex: 0 0 240px;
