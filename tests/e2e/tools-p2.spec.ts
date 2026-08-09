@@ -125,6 +125,9 @@ test('图片压缩：文件夹批量写入 covered', async ({ page }) => {
   await page.goto('/tools/image-compress')
   await page.locator('.ic-pick').click()
   await expect(page.locator('.ic-list')).toContainText('a.png')
+  // 缩略图懒加载生成：进入视口后 img 带 blob: src
+  await expect(page.locator('.ic-thumb')).toHaveCount(2)
+  await expect(page.locator('.ic-thumb').first()).toHaveAttribute('src', /^blob:/)
   await page.locator('.ic-batch-run').click()
   await expect(page.locator('.ic-done')).toContainText('成功 2')
   const written = await page.evaluate(() => (window as unknown as { __written: string[] }).__written)
