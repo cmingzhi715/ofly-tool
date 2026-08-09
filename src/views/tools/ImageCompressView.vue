@@ -453,14 +453,19 @@ onUnmounted(() => {
             <th>文件</th>
             <th>原大小</th>
             <th>转换后</th>
+            <th>预览</th>
             <th>变化</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in results" :key="r.name">
+          <tr v-for="(r, i) in results" :key="r.name">
             <td class="ic-t-name">{{ r.name }}</td>
             <td>{{ r.origKb }} KB</td>
             <td>{{ r.newKb === '失败' ? '失败' : r.newKb + ' KB' }}</td>
+            <td>
+              <img v-if="r.previewUrl" class="ic-result-thumb" :src="r.previewUrl" :alt="r.name" />
+              <span v-else class="ic-result-empty">—</span>
+            </td>
             <td :class="r.bigger ? 'ic-grow' : 'ic-save'">{{ r.pct }}</td>
           </tr>
         </tbody>
@@ -613,6 +618,22 @@ onUnmounted(() => {
 }
 .ic-grow {
   color: var(--color-accent-2);
+}
+.ic-result-thumb {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+  cursor: pointer;
+}
+.ic-result-thumb:hover {
+  outline: 1px solid var(--color-accent-2);
+}
+.ic-result-empty {
+  color: var(--color-text-muted);
 }
 .ic-error {
   color: var(--color-accent-2);
