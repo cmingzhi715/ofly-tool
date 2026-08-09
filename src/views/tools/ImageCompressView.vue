@@ -2,6 +2,7 @@
 import { computed, onUnmounted, ref } from 'vue'
 import ToolShell from '@/components/ToolShell.vue'
 import { finalizeOutName, findDuplicateNames } from '@/utils/image-name'
+import { thumbSize } from '@/utils/thumb'
 
 type Format = 'jpeg' | 'webp' | 'png'
 
@@ -101,6 +102,27 @@ async function quantizePng(ctx: CanvasRenderingContext2D, w: number, h: number):
   const output = instance.process(image)
   const png = new Uint8Array(output)
   return new Blob([png], { type: 'image/png' })
+}
+
+// 生成缩略图：长边缩放到 64px 的 JPEG objectURL（白底防透明变黑）
+async function makeThumb(file: File): Promise<string> {
+  const img = await decodeImage(file)
+  const { w, h } = thumbSize(img.naturalWidth, img.naturalHeight)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('浏览器不支持 canvas')
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, w, h)
+  ctx.drawImage(img, 0, 0, w, h)
+  return await new Promise<string>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(URL.createObjectURL(blob)) : reject(new Error('缩略图生成失败'))),
+      'image/jpeg',
+      0.8,
+    )
+  })
 }
 
 const outExt = computed(() => EXT[format.value])
@@ -270,8 +292,38 @@ async function runBatch() {
   doneInfo.value = `成功 ${ok}，失败 ${fail}，已写入 ${coveredName}/`
 }
 
+// 缩略图懒加载：进入视口的行才生成，生成后停止观察
+const thumbObserver = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+      const el = entry.target as HTMLImageElement
+      thumbObserver.unobserve(el)
+      const i = Number(el.dataset.thumb)
+      const item = items.value[i]
+      if (!item || item.thumbUrl) continue
+      makeThumb(item.file)
+        .then((url) => {
+          if (items.value[i]) items.value[i].thumbUrl = url
+        })
+        .catch(() => {
+          // 解码失败：保持 null，显示占位块
+        })
+    }
+  },
+  { rootMargin: '80px' },
+)
+
+const vLazyThumb = {
+  mounted(el: HTMLImageElement, binding: { value: number }) {
+    el.dataset.thumb = String(binding.value)
+    thumbObserver.observe(el)
+  },
+}
+
 // 组件卸载：释放所有缩略图 objectURL，断开懒加载观察
 onUnmounted(() => {
+  thumbObserver.disconnect()
   for (const it of items.value) if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl)
 })
 </script>
