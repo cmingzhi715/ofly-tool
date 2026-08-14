@@ -48,6 +48,8 @@ interface BatchResult {
   pct: string
   bigger: boolean
   previewUrl: string | null
+  // 转换后实际字节数（失败为 null；保留原图时等于原字节数）
+  newSize: number | null
 }
 const results = ref<BatchResult[]>([])
 
@@ -164,6 +166,27 @@ const outExt = computed(() => EXT[format.value])
 function outName(base: string): string {
   return base.replace(/\.[^.]+$/, '') + '.' + outExt.value
 }
+
+function formatSize(kb: number): string {
+  if (kb >= 1024) return `${(kb / 1024).toFixed(2)} MB`
+  return `${kb.toFixed(1)} KB`
+}
+
+// 批量汇总：全部处理完成后统计总大小与原→新变化比例（失败行按原大小计入）
+const batchSummary = computed<{ origKb: number; newKb: number; pct: number } | null>(() => {
+  if (!items.value.length || results.value.length !== items.value.length) return null
+  let orig = 0
+  let now = 0
+  for (const [i, item] of items.value.entries()) {
+    orig += item.file.size
+    now += results.value[i]?.newSize ?? item.file.size
+  }
+  return {
+    origKb: orig / 1024,
+    newKb: now / 1024,
+    pct: ((now - orig) / orig) * 100,
+  }
+})
 
 // ---- 单文件 ----
 async function onSingleFile(e: Event) {
@@ -313,6 +336,7 @@ async function runBatch() {
           pct: `保留原图（+${grow}%）`,
           bigger: true,
           previewUrl,
+          newSize: item.file.size,
         })
       } else {
         const fh = await covered.getFileHandle(finalName, { create: true })
@@ -328,6 +352,7 @@ async function runBatch() {
           pct: `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`,
           bigger: change > 0,
           previewUrl,
+          newSize: blob.size,
         })
       }
       ok++
@@ -339,6 +364,7 @@ async function runBatch() {
         pct: '—',
         bigger: false,
         previewUrl: null,
+        newSize: null,
       })
       fail++
     }
@@ -532,6 +558,11 @@ onUnmounted(() => {
       </div>
       <p v-if="progress.total" class="ic-progress">进度：{{ progress.done }} / {{ progress.total }}</p>
       <p v-if="doneInfo" class="ic-done">{{ doneInfo }}</p>
+      <p v-if="batchSummary" class="ic-total">
+        总大小：原 {{ formatSize(batchSummary.origKb) }} → {{ formatSize(batchSummary.newKb) }}（{{
+          batchSummary.pct >= 0 ? '+' : ''
+        }}{{ batchSummary.pct.toFixed(0) }}%）
+      </p>
       <Teleport to="body">
         <ImagePreviewLightbox
           v-if="currentResult"
@@ -641,6 +672,11 @@ onUnmounted(() => {
 .ic-done {
   font-size: 13px;
   color: var(--color-accent);
+  font-family: var(--font-mono);
+}
+.ic-total {
+  font-size: 13px;
+  color: var(--color-text);
   font-family: var(--font-mono);
 }
 .ic-table-wrap {
