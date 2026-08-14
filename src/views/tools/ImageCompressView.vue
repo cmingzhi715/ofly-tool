@@ -690,8 +690,8 @@ onUnmounted(() => {
 }
 .ic-result-thumb {
   display: block;
-  width: 120px;
-  height: 120px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
