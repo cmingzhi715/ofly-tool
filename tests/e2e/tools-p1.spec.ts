@@ -1,5 +1,6 @@
 // tests/e2e/tools-p1.spec.ts
 import { test, expect } from '@playwright/test'
+import { resolve } from 'node:path'
 
 test('文本 Diff：差异高亮', async ({ page }) => {
   await page.goto('/tools/text-diff')
@@ -16,6 +17,14 @@ test('二维码：输入文本生成二维码', async ({ page }) => {
   await expect(page.locator('.qr-img')).toBeVisible()
   const src = await page.locator('.qr-img').getAttribute('src')
   expect(src).toMatch(/^data:image\/png/)
+})
+
+test('二维码：选择二维码图片解码回文本', async ({ page }) => {
+  await page.goto('/tools/qrcode')
+  await page
+    .locator('.hidden-file')
+    .setInputFiles(resolve('tests/fixtures/qr-hello.png'))
+  await expect(page.locator('.decode-text')).toHaveText('https://example.com/ofly-qr')
 })
 
 test('文本小工具：去重与排序行', async ({ page }) => {
